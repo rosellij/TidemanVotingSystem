@@ -135,5 +135,3 @@ def printElectionResults(returnedlist):
 
     sleep(1.5)
     print("Thanks again for using the Tideman Voting Machine, powered by Python!\n")
-
-printElectionResults(calcElectionResults("tidemanresults.json"))
