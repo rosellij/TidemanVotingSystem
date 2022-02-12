@@ -94,16 +94,46 @@ def calcElectionResults(filename):
 def printElectionResults(returnedlist):
 
     from time import sleep
+    firstsecondthirdlist = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"]
 
-    print("\n{} came in with {} points. Remember, the higher the number of points, the better that candidate did in the election.\n".format(returnedlist[0][0], returnedlist[0][1]))
-    sleep(3)
+    print("")
 
-    for anycand in returnedlist[1:]:
+    for indexnum, anycand in enumerate(returnedlist):
 
-        print("{} came in with {} points.\n".format(anycand[0], anycand[1]))
-        sleep(1.5)
+        placeinfront, placeinback = None, None
+        tieboolfront = False
+        tieboolback = False
+        if indexnum != 0:
+            placeinfront = returnedlist[indexnum - 1][2]
+        if indexnum != len(returnedlist) - 1:
+            placeinback = returnedlist[indexnum + 1][2]
+        if placeinfront == anycand[2]:
+            tieboolfront = True
+        if placeinback == anycand[2]:
+            tieboolback = True
+
+        if tieboolfront or tieboolback:
+            listofties = [anycand1 for anycand1 in returnedlist if anycand1[2] == anycand[2] and anycand1[0] != anycand[0]]
+            tiesstring = ""
+            if len(listofties) >= 3:
+                for anycand2 in listofties[:-2]:
+                    tiesstring += anycand2[0] + ", "
+            if len(listofties) >= 2:
+                tiesstring += listofties[-2][0] + " and "
+            tiesstring += listofties[-1][0]
+
+            print("{} came in {} place with {} points, tying with {}!\n".format(anycand[0], firstsecondthirdlist[anycand[2] - 1], anycand[1], tiesstring))
+            sleep(3)
+
+        if tieboolback == False and tieboolfront == False:
+            if indexnum == 0:
+                print("{} came in {} place with {} points!\n".format(anycand[0], firstsecondthirdlist[anycand[2] - 1], anycand[1]))
+                sleep(3)
+            elif indexnum >= 1:
+                print("{} came in {} place with {} points.\n".format(anycand[0], firstsecondthirdlist[anycand[2] - 1], anycand[1]))
+                sleep(1.5)
 
     sleep(1.5)
     print("Thanks again for using the Tideman Voting Machine, powered by Python!\n")
 
-print(calcElectionResults("tidemanresults.json"))
+printElectionResults(calcElectionResults("tidemanresults.json"))
