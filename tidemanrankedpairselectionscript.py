@@ -17,10 +17,12 @@ def castIndividVote(candidatelist):
 
     firstsecondthirdlist = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"]
 
+    #imports essential modules
     from os.path import exists
     from time import sleep
     from json import loads, dumps
 
+    # file handling for vote save file
     if not exists("tidemanresults.json"):
         filevar = open("tidemanresults.json", "w+")
         filevar.write("{}")
@@ -30,8 +32,10 @@ def castIndividVote(candidatelist):
     filevar.close()
     currentNumEntries = len(list(jsonvar.keys()))
     
+    # creates dict for vote data to be stored in
     individvotedict = {}
 
+    # voting sequence-interface in the terminal
     print("\nHello, and welcome to the Tideman Voting Machine!\n")
     sleep(3)
     nameinput = input("What's your name anyways?\n\n >>> ")
@@ -45,7 +49,8 @@ def castIndividVote(candidatelist):
         userinput = input("Who is your {} choice candidate? Please type ONLY their ID number here: >>> ".format(firstsecondthirdlist[indexnum]))
         individvotedict[int(userinput)] = indexnum + 1
     print("\nThank you for using the Tideman Voting Machine, powered by Python!\n")
-    
+
+    # file handling to save individual votes
     filevar = open("tidemanresults.json", "w")
     jsonvar["Vote {}".format(currentNumEntries + 1)] = [{"Castor": nameinput}, {"Candidates": candidatelist}, {"Ballot": individvotedict}]
     filevar.write(dumps(jsonvar))
@@ -55,9 +60,11 @@ def castIndividVoteQuick(candidatelist):
 
     firstsecondthirdlist = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"]
 
+    #imports essential modules
     from os.path import exists
     from json import loads, dumps
 
+    # file handling for vote save file
     if not exists("tidemanresults.json"):
         filevar = open("tidemanresults.json", "w+")
         filevar.write("{}")
@@ -67,16 +74,20 @@ def castIndividVoteQuick(candidatelist):
     filevar.close()
     currentNumEntries = len(list(jsonvar.keys()))
 
+    # quick fix for not having to have users input voter names, so as to make this process quicker
     nameinput = "Voter " + str(currentNumEntries + 1)
     
+    # creates dict for vote data to be stored in
     individvotedict = {}
 
+    # voting sequence-interface in the terminal
     print("\n".join(["Candidate #{}: {}".format(indexnum + 1, anycand) for indexnum, anycand in enumerate(candidatelist)]) + "\n")
     for indexnum, anycand in enumerate(candidatelist):
         userinput = input("Who is your {} choice candidate? Please type ONLY their ID number here: >>> ".format(firstsecondthirdlist[indexnum]))
         individvotedict[int(userinput)] = indexnum + 1
     print("\nThank you for using the Tideman Voting Machine, powered by Python!\n")
     
+    # file handling to save individual votes
     filevar = open("tidemanresults.json", "w")
     jsonvar["Vote {}".format(currentNumEntries + 1)] = [{"Castor": nameinput}, {"Candidates": candidatelist}, {"Ballot": individvotedict}]
     filevar.write(dumps(jsonvar))
@@ -84,22 +95,28 @@ def castIndividVoteQuick(candidatelist):
 
 def calcElectionResults(filename):
 
+    #imports essential modules
     from json import loads
 
+    # file handling to load previous vote data
     filevar = open(filename, "r")
     jsonvar = loads(filevar.read())
     filevar.close()
 
+    # creates dictionary with all candidates and their corresponding vote totals to be incremented later
     candtotals = {anycand: 0 for anycand in list(jsonvar["Vote 1"][2]["Ballot"].keys())}
 
+    # obtains a sample ballot to be used as a basis for iterating through other ballots
     firstvoteballot = jsonvar["Vote 1"][2]["Ballot"]
 
+    # adds all possible candidate pairs to pairlist
     pairlist = []
     for anycand in firstvoteballot:
         for anysubcand in firstvoteballot:
             if anycand != anysubcand and {anycand, anysubcand} not in pairlist:
                 pairlist += [{anycand, anysubcand}]
 
+    # comparing each candidate v. each other candidate, and correspondingly incrementing the entry of the winning candidate of each individual face-off in candtotals
     for anyvote in list(jsonvar.keys()):
 
         for anypair in pairlist:
@@ -110,10 +127,12 @@ def calcElectionResults(filename):
             elif jsonvar[anyvote][2]["Ballot"][pairtuple[0]] > jsonvar[anyvote][2]["Ballot"][pairtuple[1]]:
                 candtotals[pairtuple[1]] += 1
 
+    # makes a new list with cand name: score rather than cand ID: score, sorts it by score, and assigns a place number to each cand: score pair
     workinglist = [(jsonvar["Vote 1"][1]["Candidates"][int(anykey) - 1], candtotals[anykey]) for anykey in list(candtotals.keys())]
     workinglist = sorted(workinglist, key = lambda a: a[1], reverse = True)
     returnlist = [(workinglist[0][0], workinglist[0][1], 1)]
     for indexnum, anytuple in enumerate(workinglist[1:]):
+        # mechanism for dealing with ties while assigning place numbers
         if anytuple[1] == returnlist[indexnum][1]:
             returnlist += [(anytuple[0], anytuple[1], returnlist[indexnum][2])]
         elif anytuple[1] != returnlist[indexnum][1]:
@@ -123,6 +142,7 @@ def calcElectionResults(filename):
 
 def printElectionResults(returnedlist):
 
+    #imports essential modules
     from time import sleep
     firstsecondthirdlist = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"]
 
@@ -130,6 +150,7 @@ def printElectionResults(returnedlist):
 
     for indexnum, anycand in enumerate(returnedlist):
 
+        # mechanism for dealing with ties while evaluating place numbers
         placeinfront, placeinback = None, None
         tieboolfront = False
         tieboolback = False
@@ -142,6 +163,7 @@ def printElectionResults(returnedlist):
         if placeinback == anycand[2]:
             tieboolback = True
 
+        # mechanism for displaying ties in the terminal sequence-interface
         if tieboolfront or tieboolback:
             listofties = [anycand1 for anycand1 in returnedlist if anycand1[2] == anycand[2] and anycand1[0] != anycand[0]]
             tiesstring = ""
@@ -155,6 +177,7 @@ def printElectionResults(returnedlist):
             print("{} came in {} place with {} points, tying with {}!\n".format(anycand[0], firstsecondthirdlist[anycand[2] - 1], anycand[1], tiesstring))
             sleep(3)
 
+        # mechanism for reading out candidate results that were not ties
         if tieboolback == False and tieboolfront == False:
             if indexnum == 0:
                 print("{} came in {} place with {} points!\n".format(anycand[0], firstsecondthirdlist[anycand[2] - 1], anycand[1]))
