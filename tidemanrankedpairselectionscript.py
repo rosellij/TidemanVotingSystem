@@ -35,7 +35,7 @@ def castIndividVote(candidatelist):
     print("\nHello, and welcome to the Tideman Voting Machine!\n")
     sleep(3)
     nameinput = input("What's your name anyways?\n\n >>> ")
-    print("\nAlright, thanks!\n")
+    print("\nAlright, thanks {}!\n".format(nameinput))
     sleep(3)
     print("Here are the candidates you can vote for today:\n")
     sleep(3)
@@ -45,7 +45,37 @@ def castIndividVote(candidatelist):
         userinput = input("Who is your {} choice candidate? Please type ONLY their ID number here: >>> ".format(firstsecondthirdlist[indexnum]))
         individvotedict[int(userinput)] = indexnum + 1
     print("\nThank you for using the Tideman Voting Machine, powered by Python!\n")
-    sleep(3)
+    
+    filevar = open("tidemanresults.json", "w")
+    jsonvar["Vote {}".format(currentNumEntries + 1)] = [{"Castor": nameinput}, {"Candidates": candidatelist}, {"Ballot": individvotedict}]
+    filevar.write(dumps(jsonvar))
+    filevar.close()
+
+def castIndividVoteQuick(candidatelist):
+
+    firstsecondthirdlist = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"]
+
+    from os.path import exists
+    from json import loads, dumps
+
+    if not exists("tidemanresults.json"):
+        filevar = open("tidemanresults.json", "w+")
+        filevar.write("{}")
+        filevar.close()
+    filevar = open("tidemanresults.json", "r")
+    jsonvar = loads(filevar.read())
+    filevar.close()
+    currentNumEntries = len(list(jsonvar.keys()))
+
+    nameinput = "Voter " + str(currentNumEntries + 1)
+    
+    individvotedict = {}
+
+    print("\n".join(["Candidate #{}: {}".format(indexnum + 1, anycand) for indexnum, anycand in enumerate(candidatelist)]) + "\n")
+    for indexnum, anycand in enumerate(candidatelist):
+        userinput = input("Who is your {} choice candidate? Please type ONLY their ID number here: >>> ".format(firstsecondthirdlist[indexnum]))
+        individvotedict[int(userinput)] = indexnum + 1
+    print("\nThank you for using the Tideman Voting Machine, powered by Python!\n")
     
     filevar = open("tidemanresults.json", "w")
     jsonvar["Vote {}".format(currentNumEntries + 1)] = [{"Castor": nameinput}, {"Candidates": candidatelist}, {"Ballot": individvotedict}]
